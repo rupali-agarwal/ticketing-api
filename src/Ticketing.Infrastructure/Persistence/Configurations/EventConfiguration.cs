@@ -44,5 +44,11 @@ public class EventConfiguration : IEntityTypeConfiguration<Event>
 
         builder.Property(e => e.CreatedAtUtc)
             .IsRequired();
+
+        builder.Property(e => e.IsDeleted)
+            .IsRequired();
+
+        // Deleted events remain in the database but are excluded from normal queries.
+        builder.HasQueryFilter(e => !e.IsDeleted);
     }
 }
