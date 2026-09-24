@@ -24,10 +24,4 @@
     <ProjectReference Include="..\..\src\Ticketing.Api\Ticketing.Api.csproj" />
   </ItemGroup>
 
- <ItemGroup>
-	<None Update="appsettings.Integration.json">
-		<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-	</None>
- </ItemGroup>
-
 </Project>

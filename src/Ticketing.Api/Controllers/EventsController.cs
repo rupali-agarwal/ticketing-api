@@ -90,9 +90,6 @@ public class EventsController : ControllerBase
             request,
             cancellationToken);
 
-        if (result is null)
-            return NotFound();
-
         return Ok(result);
     }
 
