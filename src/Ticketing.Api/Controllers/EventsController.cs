@@ -95,4 +95,14 @@ public class EventsController : ControllerBase
 
         return Ok(result);
     }
+
+    [HttpGet("{id:guid}/sales-summary")]
+    public async Task<ActionResult<SalesSummaryResponse>> GetSalesSummary(Guid id,CancellationToken cancellationToken)
+    {
+        var result = await _ticketService.GetSalesSummaryAsync(
+            id,
+            cancellationToken);
+
+        return Ok(result);
+    }
 }

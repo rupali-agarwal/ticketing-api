@@ -31,7 +31,7 @@ public class TicketService : ITicketService
             .FirstOrDefaultAsync(cancellationToken);
     }
 
-    public async Task<TicketPurchaseResponse?> PurchaseAsync(Guid eventId,PurchaseTicketsRequest request,CancellationToken cancellationToken = default)
+    public async Task<TicketPurchaseResponse> PurchaseAsync(Guid eventId,PurchaseTicketsRequest request,CancellationToken cancellationToken = default)
     {
         if (request.Quantity <= 0)
             throw new ValidationException("Quantity must be greater than zero.");
@@ -109,6 +109,50 @@ public class TicketService : ITicketService
             UnitPrice = purchase.UnitPrice,
             TotalPrice = purchase.Quantity * purchase.UnitPrice,
             PurchasedAtUtc = purchase.PurchasedAtUtc
+        };
+    }
+
+    public async Task<SalesSummaryResponse> GetSalesSummaryAsync(Guid eventId,CancellationToken cancellationToken = default)
+    {
+        var eventInfo = await _dbContext.Events
+            .AsNoTracking()
+            .Where(e => e.Id == eventId)
+            .Select(e => new
+            {
+                e.Id,
+                e.Name,
+                e.TicketsSold
+            })
+            .FirstOrDefaultAsync(cancellationToken);
+
+        if (eventInfo is null)
+            throw new NotFoundException("Event not found.");
+
+        var salesByTier = await _dbContext.PricingTiers
+            .AsNoTracking()
+            .Where(t => t.EventId == eventId)
+            .Select(t => new SalesByTierResponse
+            {
+                PricingTierId = t.Id,
+                TierName = t.Name,
+
+                TicketsSold = _dbContext.TicketPurchases
+                    .Where(p => p.PricingTierId == t.Id)
+                    .Sum(p => (int?)p.Quantity) ?? 0,
+
+                Revenue = _dbContext.TicketPurchases
+                    .Where(p => p.PricingTierId == t.Id)
+                    .Sum(p => (decimal?)(p.Quantity * p.UnitPrice)) ?? 0
+            })
+            .ToListAsync(cancellationToken);
+
+        return new SalesSummaryResponse
+        {
+            EventId = eventInfo.Id,
+            EventName = eventInfo.Name,
+            TicketsSold = eventInfo.TicketsSold,
+            TotalRevenue = salesByTier.Sum(t => t.Revenue),
+            SalesByTier = salesByTier
         };
     }
 }

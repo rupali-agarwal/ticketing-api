@@ -7,4 +7,6 @@ public interface ITicketService
     Task<AvailabilityResponse?> GetAvailabilityAsync(Guid eventId,CancellationToken cancellationToken = default);
 
     Task<TicketPurchaseResponse> PurchaseAsync(Guid eventId,PurchaseTicketsRequest request,CancellationToken cancellationToken = default);
+
+    Task<SalesSummaryResponse> GetSalesSummaryAsync(Guid eventId,CancellationToken cancellationToken = default);
 }
