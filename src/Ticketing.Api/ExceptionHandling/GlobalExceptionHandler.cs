@@ -18,14 +18,49 @@ public class GlobalExceptionHandler : IExceptionHandler
     {
         if (exception is ValidationException validationException)
         {
-            httpContext.Response.StatusCode =
-                StatusCodes.Status400BadRequest;
+            httpContext.Response.StatusCode = StatusCodes.Status400BadRequest;
 
             var problemDetails = new ProblemDetails
             {
                 Status = StatusCodes.Status400BadRequest,
                 Title = "Validation error",
                 Detail = validationException.Message,
+                Instance = httpContext.Request.Path
+            };
+
+            await httpContext.Response.WriteAsJsonAsync(
+                problemDetails,
+                cancellationToken);
+
+            return true;
+        }
+        else if (exception is NotFoundException notFoundException)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status404NotFound;
+
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status404NotFound,
+                Title = "Resource not found",
+                Detail = notFoundException.Message,
+                Instance = httpContext.Request.Path
+            };
+
+            await httpContext.Response.WriteAsJsonAsync(
+                problemDetails,
+                cancellationToken);
+
+            return true;
+        }
+        else if (exception is ConflictException conflictException)
+        {
+            httpContext.Response.StatusCode = StatusCodes.Status409Conflict;
+
+            var problemDetails = new ProblemDetails
+            {
+                Status = StatusCodes.Status409Conflict,
+                Title = "Conflict error",
+                Detail = conflictException.Message,
                 Instance = httpContext.Request.Path
             };
 

@@ -1,9 +1,10 @@
 using Microsoft.EntityFrameworkCore;
+using Scalar.AspNetCore;
+using Ticketing.Api.ExceptionHandling;
 using Ticketing.Application.Events;
+using Ticketing.Application.Tickets;
 using Ticketing.Infrastructure.Persistence;
 using Ticketing.Infrastructure.Services;
-using Ticketing.Api.ExceptionHandling;
-using Scalar.AspNetCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -13,6 +14,7 @@ builder.Services.AddDbContext<TicketingDbContext>(options =>
             "TicketingDatabase")));
 
 builder.Services.AddScoped<IEventService, EventService>();
+builder.Services.AddScoped<ITicketService, TicketService>();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();

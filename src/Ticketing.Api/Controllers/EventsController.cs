@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Ticketing.Application.Events;
 using Ticketing.Application.Events.Dtos;
+using Ticketing.Application.Tickets;
+using Ticketing.Application.Tickets.Dtos;
 
 namespace Ticketing.Api.Controllers;
 
@@ -9,10 +11,12 @@ namespace Ticketing.Api.Controllers;
 public class EventsController : ControllerBase
 {
     private readonly IEventService _eventService;
+    private readonly ITicketService _ticketService;
 
-    public EventsController(IEventService eventService)
+    public EventsController(IEventService eventService, ITicketService ticketService)
     {
         _eventService = eventService;
+        _ticketService = ticketService;
     }
 
     [HttpPost]
@@ -65,5 +69,30 @@ public class EventsController : ControllerBase
             return NotFound();
 
         return NoContent();
+    }
+
+    [HttpGet("{id:guid}/availability")]
+    public async Task<ActionResult<AvailabilityResponse>> GetAvailability(Guid id,CancellationToken cancellationToken)
+    {
+        var result = await _ticketService.GetAvailabilityAsync(id,cancellationToken);
+
+        if (result is null)
+            return NotFound();
+
+        return Ok(result);
+    }
+
+    [HttpPost("{id:guid}/tickets")]
+    public async Task<ActionResult<TicketPurchaseResponse>> PurchaseTickets(Guid id,PurchaseTicketsRequest request,CancellationToken cancellationToken)
+    {
+        var result = await _ticketService.PurchaseAsync(
+            id,
+            request,
+            cancellationToken);
+
+        if (result is null)
+            return NotFound();
+
+        return Ok(result);
     }
 }
