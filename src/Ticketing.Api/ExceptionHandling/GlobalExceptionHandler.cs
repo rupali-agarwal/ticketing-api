@@ -59,7 +59,7 @@ public class GlobalExceptionHandler : IExceptionHandler
             var problemDetails = new ProblemDetails
             {
                 Status = StatusCodes.Status409Conflict,
-                Title = "Conflict error",
+                Title = "Conflict",
                 Detail = conflictException.Message,
                 Instance = httpContext.Request.Path
             };
